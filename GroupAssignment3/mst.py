@@ -3,7 +3,7 @@
 # importing "heapq" to implement heap queue
 import heapq
 
-
+global myedges
 
 # READ input.txt
 # 1st line 0 < n < 30
@@ -21,16 +21,39 @@ def heapInsert(v, arr, heap):
             heapq.heappush(heap, (arr[i], (v, i)))
 
 
+def primMST(heap, e):
+    (w, (v1, v2)) = e
+    MSTtotal = 0
+    # while heap is not empty
 
-firstMSTtotal = 0
-lastAdded = 0
+    while len(heap) > 0:
+        (weight, (v, u)) = heapq.heappop(heap)  # pop the minimum weight edge (root) from heap
+        if v1 != v or v2 != u:
+            #  look at both vertices of the edge we just pulled from the heap
+            if label[u] != label[v] and label[v] == 1:  # if the vertex 'v' is already in MST
+                label[u] = 1  # add 'u' to the MST
+                myMST[u][v] = weight
+                myMST[v][u] = weight
+                myEdges.append((weight, (v, u)))
+                heapInsert(u, adjMatrix[u], myHeap)  # add all the edges of the vertex we added into heap
+                MSTtotal += weight  # add the weight to MST total weight
+            elif label[u] != label[v] and label[u] == 1:  # if the vertex 'u' is already in MST
+                label[v] = 1  # add 'v' to the MST
+                myMST[u][v] = weight
+                myMST[v][u] = weight
+                myEdges.append((weight, (v, u)))
+                heapInsert(v, adjMatrix[v], myHeap)  # add all the edges of the vertex we added into heap
+                MSTtotal += weight  # add the weight to MST total weight
+    return MSTtotal, myEdges
+
 
 myMST = [[0 for y in x] for x in adjMatrix]
-MSTedges = []
-print(myMST)
+myEdges = []
+
 # initializing list
 myHeap = []
 label = [0 for x in range(n)]
+
 # using heapify to convert list into heap
 heapq.heapify(myHeap)
 
@@ -41,46 +64,20 @@ heapInsert(0, adjMatrix[0], myHeap)
 # update label array
 label[0] = 1
 
-# while heap is not empty
-while len(myHeap) > 0:
-    (weight, (v, u)) = heapq.heappop(myHeap)  # pop the minimum weight edge (root) from heap
-
-    #  look at both vertices of the edge we just pulled from the heap
-    if label[u] != label[v] and label[v] == 1:  # if the vertex 'v' is already in MST
-        label[u] = 1  # add 'u' to the MST
-        myMST[u][v] = weight
-        myMST[v][u] = weight
-        MSTedges.append((weight, (v, u)))
-        lastAdded = (weight, u)  # update the lastAdded variable
-        heapInsert(u, adjMatrix[u], myHeap)  # add all the edges of the vertex we added into heap
-        firstMSTtotal += weight  # add the weight to MST total weight
-    elif label[u] != label[v] and label[u] == 1:  # if the vertex 'u' is already in MST
-        label[v] = 1  # add 'v' to the MST
-        myMST[u][v] = weight
-        myMST[v][u] = weight
-        MSTedges.append((weight, (v, u)))
-        lastAdded = (weight, v)  # update the lastAdded variable
-        heapInsert(v, adjMatrix[v], myHeap)  # add all the edges of the vertex we added into heap
-        firstMSTtotal += weight  # add the weight to MST total weight
-print(myMST)
-print(MSTedges)
+first_mst = primMST(myHeap, (-1, (-1, -1)))
 f = open("output.txt", "w+")
-f.write(str(firstMSTtotal) + '\n')
+f.write(str(first_mst[0]) + '\n')
 
-secondMSTtotal = 0
-lastAdded = 0
+#  -------------------- FIND THE SECOND MST -------------------
 
-
-print(MSTedges)
-print(myHeap)
 min = -1
-MSTedgesMin = []
-print("-------------BEGINNING---------------")
-for edge in MSTedges:
+for bad_edge in first_mst[1]:
     myMST = [[0 for y in x] for x in adjMatrix]
+    myEdges = []
     # initializing list
     myHeap = []
     label = [0 for x in range(n)]
+
     # using heapify to convert list into heap
     heapq.heapify(myHeap)
 
@@ -90,56 +87,24 @@ for edge in MSTedges:
 
     # update label array
     label[0] = 1
-    # find second by finding the minimum MST with an edge of MSTone excluded
+    second_MST = primMST(myHeap, bad_edge)
+    if min == -1 or second_MST[0] < min:
+        min = second_MST[0]
+        MSTedgesMin = second_MST[1]  # store the edges of the min tree we're gonna keep
 
-
-    MSTtwoedges = []
-
-    secondMSTtotal = 0
-    print("EDGE")
-    print(edge)
-    (w, (v1, v2)) = edge
-    while len(myHeap) > 0:
-        (weight, (v, u)) = heapq.heappop(myHeap)  # pop the minimum weight edge (root) from heap
-        print((weight, (v, u)))
-        if (v1 == v and v2 == u) or (v1 == u and v2 == v):
-            print("bad edge")
-        else:
-            #  look at both vertices of the edge we just pulled from the heap
-            if label[u] != label[v] and label[v] == 1:  # if the vertex 'v' is already in MST
-                label[u] = 1  # add 'u' to the MST
-                myMST[u][v] = weight
-                myMST[v][u] = weight
-                MSTtwoedges.append((weight, (v, u)))
-                lastAdded = (weight, u)  # update the lastAdded variable
-                heapInsert(u, adjMatrix[u], myHeap)  # add all the edges of the vertex we added into heap
-                secondMSTtotal += weight  # add the weight to MST total weight
-            elif label[u] != label[v] and label[u] == 1:  # if the vertex 'u' is already in MST
-                label[v] = 1  # add 'v' to the MST
-                myMST[u][v] = weight
-                myMST[v][u] = weight
-                MSTtwoedges.append((weight, (v, u)))
-                lastAdded = (weight, v)  # update the lastAdded variable
-                heapInsert(v, adjMatrix[v], myHeap)  # add all the edges of the vertex we added into heap
-                secondMSTtotal += weight  # add the weight to MST total weight
-
-    if min == -1 or secondMSTtotal < min:
-        print(secondMSTtotal)
-        min = secondMSTtotal
-        MSTedgesMin = MSTtwoedges
 
 f.write(str(min) + '\n')
+
+#  -------------------- FIND THE SECOND MST -------------------
 secondMSTtotal = min
-print(MSTedgesMin)
 min = -1
-
-print("-------------THIRD---------------")
-
-for edge in MSTedgesMin:
+for bad_edge in MSTedgesMin:
     myMST = [[0 for y in x] for x in adjMatrix]
+    myEdges = []
     # initializing list
     myHeap = []
     label = [0 for x in range(n)]
+
     # using heapify to convert list into heap
     heapq.heapify(myHeap)
 
@@ -149,38 +114,11 @@ for edge in MSTedgesMin:
 
     # update label array
     label[0] = 1
-    # find second by finding the minimum MST with an edge of MSTone excluded
+    third_MST = primMST(myHeap, bad_edge)
+    if (min == -1 or third_MST[0] < min) and third_MST[0] >= secondMSTtotal:
+        min = third_MST[0]
+        MSTedgesMin = second_MST[1]  # store the edges of the min tree we're gonna keep
 
-
-    MSTthreeedges = []
-    thirdMSTtotal = 0
-    (w, (v1, v2)) = edge
-    while len(myHeap) > 0:
-        (weight, (v, u)) = heapq.heappop(myHeap)  # pop the minimum weight edge (root) from heap
-        if (v1 == v and v2 == u) or (v1 == u and v2 == v):
-            miaa = 0
-        else:
-            #  look at both vertices of the edge we just pulled from the heap
-            if label[u] != label[v] and label[v] == 1:  # if the vertex 'v' is already in MST
-                label[u] = 1  # add 'u' to the MST
-                myMST[u][v] = weight
-                myMST[v][u] = weight
-                MSTthreeedges.append((weight, (v, u)))
-                lastAdded = (weight, u)  # update the lastAdded variable
-                heapInsert(u, adjMatrix[u], myHeap)  # add all the edges of the vertex we added into heap
-                thirdMSTtotal += weight  # add the weight to MST total weight
-            elif label[u] != label[v] and label[u] == 1:  # if the vertex 'u' is already in MST
-                label[v] = 1  # add 'v' to the MST
-                myMST[u][v] = weight
-                myMST[v][u] = weight
-                MSTthreeedges.append((weight, (v, u)))
-                lastAdded = (weight, v)  # update the lastAdded variable
-                heapInsert(v, adjMatrix[v], myHeap)  # add all the edges of the vertex we added into heap
-                thirdMSTtotal += weight  # add the weight to MST total weight
-
-    print(thirdMSTtotal)
-    if (min == -1 or thirdMSTtotal < min) and thirdMSTtotal >= secondMSTtotal:
-        min = thirdMSTtotal
 
 f.write(str(min) + '\n')
 
