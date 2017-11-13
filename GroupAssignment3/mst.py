@@ -21,6 +21,13 @@ def heapInsert(v, arr, heap):
             heapq.heappush(heap, (arr[i], (v, i)))
 
 
+def readRow(row):
+    with open('input.txt', 'r') as f:
+        lines = f.readlines()
+        return [int(x) for x in lines[row].strip('\n').split(',')]
+
+
+
 def primMST(heap, e):
     (w, (v1, v2)) = e
     MSTtotal = 0
@@ -35,14 +42,14 @@ def primMST(heap, e):
                 myMST[u][v] = weight
                 myMST[v][u] = weight
                 myEdges.append((weight, (v, u)))
-                heapInsert(u, adjMatrix[u], myHeap)  # add all the edges of the vertex we added into heap
+                heapInsert(u, readRow(u+1), myHeap)  # add all the edges of the vertex we added into heap
                 MSTtotal += weight  # add the weight to MST total weight
             elif label[u] != label[v] and label[u] == 1:  # if the vertex 'u' is already in MST
                 label[v] = 1  # add 'v' to the MST
                 myMST[u][v] = weight
                 myMST[v][u] = weight
                 myEdges.append((weight, (v, u)))
-                heapInsert(v, adjMatrix[v], myHeap)  # add all the edges of the vertex we added into heap
+                heapInsert(v, readRow(v+1), myHeap)  # add all the edges of the vertex we added into heap
                 MSTtotal += weight  # add the weight to MST total weight
     return MSTtotal, myEdges
 
@@ -59,7 +66,7 @@ heapq.heapify(myHeap)
 
 # insert the first vertex into the heap with all of its its edges
 # i.e. the first row if the adjacency matrix
-heapInsert(0, adjMatrix[0], myHeap)
+heapInsert(0, readRow(1), myHeap)
 
 # update label array
 label[0] = 1
@@ -85,7 +92,7 @@ for bad_edge in first_mst[1]:
 
     # insert the first vertex into the heap with all of its its edges
     # i.e. the first row if the adjacency matrix
-    heapInsert(0, adjMatrix[0], myHeap)
+    heapInsert(0, readRow(1), myHeap)
 
     # update label array
     label[0] = 1
@@ -115,7 +122,7 @@ for bad_edge in MSTedgesMin:
 
     # insert the first vertex into the heap with all of its its edges
     # i.e. the first row if the adjacency matrix
-    heapInsert(0, adjMatrix[0], myHeap)
+    heapInsert(0, readRow(1), myHeap)
 
     # update label array
     label[0] = 1
