@@ -10,8 +10,6 @@ global myedges
 # rest lines n lines of n values delim ',' 0 < n < 30
 with open('input.txt', 'r') as f:
     n = int(f.readline())
-    adjMatrix = [line.strip('\n').split(',') for line in f]
-    adjMatrix = [[int(y) for y in x] for x in adjMatrix]
     f.close()
 
 
@@ -39,22 +37,17 @@ def primMST(heap, e):
             #  look at both vertices of the edge we just pulled from the heap
             if label[u] != label[v] and label[v] == 1:  # if the vertex 'v' is already in MST
                 label[u] = 1  # add 'u' to the MST
-                myMST[u][v] = weight
-                myMST[v][u] = weight
                 myEdges.append((weight, (v, u)))
                 heapInsert(u, readRow(u+1), myHeap)  # add all the edges of the vertex we added into heap
                 MSTtotal += weight  # add the weight to MST total weight
             elif label[u] != label[v] and label[u] == 1:  # if the vertex 'u' is already in MST
                 label[v] = 1  # add 'v' to the MST
-                myMST[u][v] = weight
-                myMST[v][u] = weight
                 myEdges.append((weight, (v, u)))
                 heapInsert(v, readRow(v+1), myHeap)  # add all the edges of the vertex we added into heap
                 MSTtotal += weight  # add the weight to MST total weight
     return MSTtotal, myEdges
 
 
-myMST = [[0 for y in x] for x in adjMatrix]
 myEdges = []
 
 # initializing list
@@ -81,7 +74,6 @@ f.write(str(first_mst[0]) + '\n')
 
 min = -1
 for bad_edge in first_mst[1]:
-    myMST = [[0 for y in x] for x in adjMatrix]
     myEdges = []
     # initializing list
     myHeap = []
@@ -111,7 +103,6 @@ f.write(str(min) + '\n')
 secondMSTtotal = min
 min = -1
 for bad_edge in MSTedgesMin:
-    myMST = [[0 for y in x] for x in adjMatrix]
     myEdges = []
     # initializing list
     myHeap = []
