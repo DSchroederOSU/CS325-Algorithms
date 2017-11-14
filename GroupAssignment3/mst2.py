@@ -58,46 +58,27 @@ heapq.heapify(allEdges)
 for x in range(0, n):
     heapInsert(x, readRow(x + 1), allEdges)
 
-print(allEdges)
 
 totals = []
 heapq.heapify(totals)
 
-
-
-
 for edge in allEdges:
     myHeap = []
-
     # using heapify to convert list into heap
     heapq.heapify(myHeap)
-
     # insert the first vertex into the heap with all of its its edges
     # i.e. the first row if the adjacency matrix
     heapInsert(0, readRow(1), myHeap)
     label = [0 for x in range(n)]
-
     label[0] = 1
-
     total = primMST(myHeap, edge)
-
     heapq.heappush(totals, total)
 
-one = heapq.heappop(totals)
-two = -1
-three = -1
-while len(totals) != 0:
-    test = heapq.heappop(totals)
-    if test != one:
-        two = test
-        break
 
-while len(totals) != 0:
-    test = heapq.heappop(totals)
-    if test != two:
-        three = test
-        break
+test = sorted(set(totals))
+f = open("output.txt", "w+")
+f.write(str(test[0]) + '\n')
+f.write(str(test[1]) + '\n')
+f.write(str(test[2]))
 
-print(one)
-print(two)
-print(three)
+exit(0)
