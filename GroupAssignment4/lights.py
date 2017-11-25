@@ -18,21 +18,41 @@ with open('input.txt', 'r') as f:
 
 
 CFN = []
-for x in range(0, num_lights):
-    light_vals = switches[x]
-    light_switches = []
-    for y in range(0, len(light_vals)):
-        if light_vals[y] == 1:
-            light_switches.append(y+1)
-    if conditions[x] == 1:  # if the light is on, make sure only one switch gets hit
-        CFN.append((light_switches[0], light_switches[1]))
-        CFN.append((light_switches[0]*-1, light_switches[1]*-1))
-    else:  # if the light is off, both switches or neither switch must be hit
-        CFN.append((light_switches[0] * -1, light_switches[1]))
-        CFN.append((light_switches[0], light_switches[1] * -1))
+#### s1 = switch 1
+#### s2 = switch 2
+#### s1 --- L1 ---- s2
 
-print(CFN)
-print(satisfiable(CFN))
+#### RULE #1
+#### if L1 is on ---> (s1, s2), (-s1, -s2)
+#### Force on switch to be true and one to be false
+
+#### RULE #2
+#### if L1 is off ---> (s1, -s2), (-s1, s2)
+#### Force both swicthes to be true or both be false
+
+# 1 => switch is attached to light, 0 otherwise
+# there will be 2 "1's" per row (light); each light has exactly two switches
+#      n (num_switches)
+#   [(0/1), (0/1), (0/1)]
+#   [(0/1), (0/1), (0/1)]
+# m [(0/1), (0/1), (0/1)]
+#   [(0/1), (0/1), (0/1)]
+#   [(0/1), (0/1), (0/1)]
+
+
+for x in range(0, num_lights):
+    # get current light's connecting switches
+    light_vals = [i+1 for i, switch in enumerate(switches[x]) if switch == 1]
+
+    # if the light is on, apply Rule #1
+    if conditions[x] == 1:
+        CFN.append((light_vals[0], light_vals[1]))
+        CFN.append((light_vals[0]*-1, light_vals[1]*-1))
+    # if the light is off, apply Rule #2
+    else:
+        CFN.append((light_vals[0] * -1, light_vals[1]))
+        CFN.append((light_vals[0], light_vals[1] * -1))
+
 
 with open("output.txt", "w+") as out:
     if satisfiable(CFN):
