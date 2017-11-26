@@ -17,17 +17,16 @@ with open('input.txt', 'r') as f:
     f.close()
 
 
-CFN = []
-#### s1 = switch 1
-#### s2 = switch 2
+CFN = []  # store the series of 2-CNF statements as tuples
+
 #### s1 --- L1 ---- s2
 
 #### RULE #1
-#### if L1 is on ---> (s1, s2), (-s1, -s2)
-#### Force on switch to be true and one to be false
+#### if L1 is on ---> CNF = (s1, s2), (-s1, -s2)
+#### Force one switch to be true and one to be false
 
 #### RULE #2
-#### if L1 is off ---> (s1, -s2), (-s1, s2)
+#### if L1 is off ---> CNF = (s1, -s2), (-s1, s2)
 #### Force both swicthes to be true or both be false
 
 # 1 => switch is attached to light, 0 otherwise
@@ -42,7 +41,7 @@ CFN = []
 
 for x in range(0, num_lights):
     # get current light's connecting switches
-    light_vals = [i+1 for i, switch in enumerate(switches[x]) if switch == 1]
+    light_vals = [index+1 for index, switch in enumerate(switches[x]) if switch == 1]
 
     # if the light is on, apply Rule #1
     if conditions[x] == 1:
@@ -52,7 +51,6 @@ for x in range(0, num_lights):
     else:
         CFN.append((light_vals[0] * -1, light_vals[1]))
         CFN.append((light_vals[0], light_vals[1] * -1))
-
 
 with open("output.txt", "w+") as out:
     if satisfiable(CFN):
